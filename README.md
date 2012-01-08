@@ -11,7 +11,8 @@ It's almost identical to a normal ioquake3 client except it runs faster:
 
 There's a similarly named project (Q3DMParse) that's for only parsing the
 demo file.  It's much faster but it doesn't update all of the client side
-metadata and it has a lot of #ifdefs.  This is a much approach but slower.
+metadata and it has a lot of #ifdefs.  This is a much more comprehensive
+approach since it runs the QVM code but it is slower.
 
 This now uses a SQLite3 backend to store messages since Com_Printf is
 unreliable (skips output at higher timescale).  This sql log is very minimal
