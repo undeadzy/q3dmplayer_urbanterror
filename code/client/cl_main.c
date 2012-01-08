@@ -929,6 +929,10 @@ void CL_DemoCompleted( void )
 
 	CL_Disconnect( qtrue );
 	CL_NextDemo();
+
+#ifdef DEMO_PLAYER
+	Com_Quit_f();
+#endif
 }
 
 /*
@@ -3193,7 +3197,11 @@ void CL_InitRef( void ) {
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
 #ifdef USE_RENDERER_DLOPEN
+#ifdef DEMO_PLAYER
+	cl_renderer = Cvar_Get("cl_renderer", "null", CVAR_ARCHIVE | CVAR_LATCH);
+#else
 	cl_renderer = Cvar_Get("cl_renderer", "opengl1", CVAR_ARCHIVE | CVAR_LATCH);
+#endif
 
 	Com_sprintf(dllName, sizeof(dllName), "renderer_%s_" ARCH_STRING DLL_EXT, cl_renderer->string);
 
@@ -3201,7 +3209,11 @@ void CL_InitRef( void ) {
 	{
 		Cvar_ForceReset("cl_renderer");
 
+#ifdef DEMO_PLAYER
+		Com_sprintf(dllName, sizeof(dllName), "renderer_null_" ARCH_STRING DLL_EXT);
+#else
 		Com_sprintf(dllName, sizeof(dllName), "renderer_opengl1_" ARCH_STRING DLL_EXT);
+#endif
 		rendererLib = Sys_LoadLibrary(dllName);
 	}
 
@@ -3427,6 +3439,13 @@ CL_Init
 */
 void CL_Init( void ) {
 	Com_Printf( "----- Client Initialization -----\n" );
+
+#ifdef USE_SQLITE3
+	// Start the logger before CGame so we capture all messages
+	if (sql_init(&sql, "client_qvm_log.db") < 0) {
+		Com_Error(ERR_DROP, "Failed to initialize the database");
+	}
+#endif
 
 	Con_Init ();
 
@@ -3704,6 +3723,13 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 
 	Com_Memset( &cls, 0, sizeof( cls ) );
 	Key_SetCatcher( 0 );
+
+#ifdef USE_SQLITE3
+	if (sql_close(&sql) < 0) {
+		Com_Error(ERR_DROP, "Failed to close the database\n");
+	}
+	Com_Printf("SQLite3 database shut down.\n");
+#endif
 
 	Com_Printf( "-----------------------\n" );
 

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <ctype.h>
 #include <errno.h>
 
-#ifndef DEDICATED
+#if !defined(DEDICATED) && !defined(DEMO_PLAYER)
 #ifdef USE_LOCAL_HEADERS
 #	include "SDL.h"
 #	include "SDL_cpuinfo.h"
@@ -197,7 +197,7 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 {
 	CON_Shutdown( );
 
-#ifndef DEDICATED
+#if !defined(DEDICATED) && !defined(DEMO_PLAYER)
 	SDL_Quit( );
 #endif
 
@@ -231,7 +231,7 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
 {
 	cpuFeatures_t features = 0;
 
-#ifndef DEDICATED
+#if !defined(DEDICATED) && !defined(DEMO_PLAYER)
 	if( SDL_HasRDTSC( ) )    features |= CF_RDTSC;
 	if( SDL_HasMMX( ) )      features |= CF_MMX;
 	if( SDL_HasMMXExt( ) )   features |= CF_MMX_EXT;
@@ -573,7 +573,7 @@ int main( int argc, char **argv )
 	int   i;
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
 
-#ifndef DEDICATED
+#if !defined(DEDICATED) && !defined(DEMO_PLAYER)
 	// SDL version check
 
 	// Compile time

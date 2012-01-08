@@ -23,12 +23,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // snddma_null.c
 // all other sound mixing is portable
 
+#include "../client/snd_local.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
+dma_t	dma;
+int	s_soundtime;
+int	s_rawend[MAX_RAW_STREAMS];
+
 qboolean SNDDMA_Init(void)
 {
-	return qfalse;
+	return qtrue;
 }
 
 int	SNDDMA_GetDMAPos(void)
@@ -48,6 +53,7 @@ void SNDDMA_Submit(void)
 {
 }
 
+#ifndef DEMO_PLAYER
 sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) 
 {
 	return 0;
@@ -58,3 +64,4 @@ void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 
 void S_ClearSoundBuffer( void ) {
 }
+#endif

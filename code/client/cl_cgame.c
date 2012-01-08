@@ -398,6 +398,9 @@ void CL_ShutdownCGame( void ) {
 	if ( !cgvm ) {
 		return;
 	}
+#ifdef USE_SQLITE3
+	sql_insert_null(sql, "client", "cgame_QVM", "CG_SHUTDOWN");
+#endif
 	VM_Call( cgvm, CG_SHUTDOWN );
 	VM_Free( cgvm );
 	cgvm = NULL;
@@ -419,6 +422,9 @@ The cgame module is making a system call
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
 	case CG_PRINT:
+#ifdef USE_SQLITE3
+		sql_insert_text(sql, "cgame_QVM", "client", "CG_PRINT", (const char *)VMA(1));
+#endif
 		Com_Printf( "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_ERROR:
@@ -480,6 +486,9 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		SCR_UpdateScreen();
 		return 0;
 	case CG_CM_LOADMAP:
+#ifdef USE_SQLITE3
+		sql_insert_text(sql, "cgame_QVM", "client", "CG_CM_LOADMAP", (const char *)VMA(1));
+#endif
 		CL_CM_LoadMap( VMA(1) );
 		return 0;
 	case CG_CM_NUMINLINEMODELS:
@@ -751,6 +760,9 @@ void CL_InitCGame( void ) {
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
+#ifdef USE_SQLITE3
+	sql_insert_var_text(sql, "client", "cgame_QVM", "CG_INIT", "%d %d %d", clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum);
+#endif
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
 	// reset any CVAR_CHEAT cvars registered by cgame

@@ -857,6 +857,10 @@ void CL_ParseCommandString( msg_t *msg ) {
 
 	index = seq & (MAX_RELIABLE_COMMANDS-1);
 	Q_strncpyz( clc.serverCommands[ index ], s, sizeof( clc.serverCommands[ index ] ) );
+
+#ifdef USE_SQLITE3
+	sql_insert_text(sql, "server", "client", "CL_ParseCommandString", s);
+#endif
 }
 
 
@@ -874,6 +878,9 @@ void CL_ParseServerMessage( msg_t *msg ) {
 		Com_Printf ("------------------\n");
 	}
 
+#ifdef USE_SQLITE3
+	sql_insert_text(sql, "server", "client", "CL_ParseServerMessage", "start");
+#endif
 	MSG_Bitstream(msg);
 
 	// get the reliable sequence acknowledge number
@@ -933,6 +940,9 @@ void CL_ParseServerMessage( msg_t *msg ) {
 			break;
 		}
 	}
+#ifdef USE_SQLITE3
+	sql_insert_text(sql, "server", "client", "CL_ParseServerMessage", "end");
+#endif
 }
 
 
