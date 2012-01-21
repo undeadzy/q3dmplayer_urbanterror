@@ -51,8 +51,8 @@ Example
 Build the executable
 --------------------
 
-Unix: Run 'make'
-Windows: See 'README_cygwin.md' and then run 'sh cross-make-mingw.sh'
+    Unix: Run 'make'
+    Windows: See 'README_cygwin.md' and then run 'sh cross-make-mingw.sh'
 
 I'm assuming your extension is .i386 (Linux).  If you are on Windows, it should be .x86.exe or something.
 
@@ -61,7 +61,7 @@ Run the demo
 
 Assume the demo name is 'happy_match.dm_68' and located in ~/.ioUrT/q3ut4/demos/happy_match.dm_68
 
-./demo_player.i386 +demo happy_match +timedemo 1
+    ./demo_player.i386 +demo happy_match +timedemo 1
 
 This will generate a client_qvm_log.db file.  It's a SQLite3 database with all of the info.
 You should use this to generate a file for the stats programs because ioquake3's print statements
@@ -72,7 +72,7 @@ Extract the messages
 
 Run a SQL command against the database with the provided sqlite3.i386:
 
-./sqlite3.i386 client_qvm_log.db 'SELECT value FROM q3log WHERE msgid="CG_PRINT" AND LENGTH(value) > 1' > game_log.txt
+    ./sqlite3.i386 client_qvm_log.db 'SELECT value FROM q3log WHERE msgid="CG_PRINT" AND LENGTH(value) > 1' > game_log.txt
 
 This "game_log.txt" should be identical to if you ran the demo with a normal client at timescale 1.
 The SQL database doesn't drop messages like the print statements in ioquake3
