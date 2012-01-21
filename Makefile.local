@@ -1,10 +1,27 @@
+# Build Urban Terror (ioUrbanTerror)
+VERSION=1.36urt
+
+# This tells ioquake3 to treat this as a standalone game.
+# This is a normal option in vanilla ioquake3
+BUILD_STANDALONE=1
+
+SERVERBIN=ioUrTded
+CLIENTBIN=ioUrT
+
+# Enable urban terror specific functionality.
+# These are all based on ioUrbanTerror.
+CFLAGS += -DURBAN_TERROR=1
+
+# Only build the things we need
 BUILD_DEMO_PLAYER=1
 BUILD_SQLITE3=1
 
-BUILD_STANDALONE=0
+# SMP isn't working yet (dest copy is disabled in the Makefile)
+# Only useful for Mac due to OpenGL library limitations
 BUILD_CLIENT=0
-BUILD_CLIENT_SMP=0
 BUILD_SERVER=0
+USE_RENDERER_DLOPEN=0
+BUILD_CLIENT_SMP=0
 BUILD_GAME_SO=0
 BUILD_GAME_QVM=0
 BUILD_MISSIONPACK=0

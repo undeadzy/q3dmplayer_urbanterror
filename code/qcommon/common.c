@@ -38,7 +38,7 @@ int demo_protocols[] =
 
 /* Needed for some mods like UrT */
 #ifdef DEMO_PLAYER
-#define MIN_DEDICATED_COMHUNKMEGS 1
+#define MIN_DEDICATED_COMHUNKMEGS 256
 #define MIN_COMHUNKMEGS		256
 #define DEF_COMHUNKMEGS		256
 #else
@@ -46,6 +46,7 @@ int demo_protocols[] =
 #define MIN_COMHUNKMEGS		56
 #define DEF_COMHUNKMEGS		64
 #endif
+
 #define DEF_COMZONEMEGS		24
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
@@ -2722,7 +2723,11 @@ void Com_Init( char *commandLine ) {
 
   // get dedicated here for proper hunk megs initialization
 #ifdef DEDICATED
+#  ifdef URBAN_TERROR
+	com_dedicated = Cvar_Get ("dedicated", "2", CVAR_INIT);
+#  else
 	com_dedicated = Cvar_Get ("dedicated", "1", CVAR_INIT);
+#  endif
 	Cvar_CheckRange( com_dedicated, 1, 2, qtrue );
 #else
 	com_dedicated = Cvar_Get ("dedicated", "0", CVAR_LATCH);

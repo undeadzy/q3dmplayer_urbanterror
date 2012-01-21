@@ -187,6 +187,16 @@ static const unsigned int pak_checksums[] = {
 	977125798u
 };
 
+#ifdef URBAN_TERROR
+
+// ioUrbanTerror still includes this so I'm now including it as well.
+//
+// hobbes - really ugly to include those arrays like that...and here
+#  include "basepakheaders.h"
+static int pak_purechecksums[1];
+
+#endif
+
 static const unsigned int missionpak_checksums[] =
 {
 	2430342401u,
@@ -3158,7 +3168,12 @@ static void FS_Startup( const char *gameName )
 		homePath = fs_basepath->string;
 	}
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
+
+#ifdef URBAN_TERROR
+	fs_gamedirvar = Cvar_Get ("fs_game", "q3ut4", CVAR_INIT|CVAR_SYSTEMINFO );
+#else
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
+#endif
 
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
@@ -3485,6 +3500,25 @@ const char *FS_LoadedPakChecksums( void ) {
 		Q_strcat( info, sizeof( info ), va("%i ", search->pack->checksum ) );
 	}
 
+#ifdef URBAN_TERROR
+	{
+		qboolean found = qfalse;
+		for ( search = fs_searchpaths ; search ; search = search->next ) {
+			if ( !search->pack ) {
+				continue;
+			}
+			if ( !strcmp(search->pack->pakBasename, "pak0" ) ) {
+				found = qtrue;
+				continue;
+			}
+		}
+		if( !found ) {
+			//Com_Printf("LoadedPakChecksums: pak0 not found, adding fake sum %i\n", pak_checksums[0]);
+			Q_strcat( info, sizeof( info ), va("%i ", pak_checksums[0]) );
+		}
+	}
+#endif
+
 	return info;
 }
 
@@ -3514,6 +3548,28 @@ const char *FS_LoadedPakNames( void ) {
 		Q_strcat( info, sizeof( info ), search->pack->pakBasename );
 	}
 
+#ifdef URBAN_TERROR
+	{
+		qboolean found = qfalse;
+		for ( search = fs_searchpaths ; search ; search = search->next ) {
+			if ( !search->pack ) {
+				continue;
+			}
+			if ( !strcmp(search->pack->pakBasename, "pak0" ) ) {
+				found = qtrue;
+				continue;
+			}
+		}
+		if( !found ) {
+			//Com_Printf("LoadedPakNames: pak0 not found, adding fake name\n");
+			if (*info) {
+				Q_strcat(info, sizeof( info ), " " );
+			}
+			Q_strcat( info, sizeof( info ), "pak0" );
+		}
+	}
+#endif
+
 	return info;
 }
 
@@ -3541,6 +3597,25 @@ const char *FS_LoadedPakPureChecksums( void ) {
 		Q_strcat( info, sizeof( info ), va("%i ", search->pack->pure_checksum ) );
 	}
 
+#ifdef URBAN_TERROR
+	{
+		qboolean found = qfalse;
+		for ( search = fs_searchpaths ; search ; search = search->next ) {
+			if ( !search->pack ) {
+				continue;
+			}
+			if ( !strcmp(search->pack->pakBasename, "pak0" ) ) {
+				found = qtrue;
+				continue;
+			}
+		}
+		if( !found ) {
+			//Com_Printf("LoadedPakPureChecksums: pak0 not found, adding fake pure sum %i\n", pak_purechecksums[0]);
+			Q_strcat( info, sizeof( info ), va("%i ", pak_purechecksums[0]) );
+		}
+	}
+#endif
+
 	return info;
 }
 
@@ -3562,7 +3637,11 @@ const char *FS_ReferencedPakChecksums( void ) {
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file?
 		if ( search->pack ) {
+#ifdef URBAN_TERROR
+			if (search->pack->referenced) {
+#else
 			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, com_basegame->string, strlen(com_basegame->string))) {
+#endif
 				Q_strcat( info, sizeof( info ), va("%i ", search->pack->checksum ) );
 			}
 		}
@@ -3637,7 +3716,11 @@ const char *FS_ReferencedPakNames( void ) {
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file?
 		if ( search->pack ) {
+#ifdef URBAN_TERROR
+			if (search->pack->referenced) {
+#else
 			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, com_basegame->string, strlen(com_basegame->string))) {
+#endif
 				if (*info) {
 					Q_strcat(info, sizeof( info ), " " );
 				}
@@ -3821,6 +3904,26 @@ void FS_InitFilesystem( void ) {
 	Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
 }
 
+#ifdef URBAN_TERROR
+/*
+================
+FS_CalculateBasePakPureChecksums
+
+Called on each restart, calculates the pure sums for non-existant base paks
+================
+*/
+static void FS_CalculateBasePakPureChecksums( void ) {
+	char *buffer;
+
+	buffer = Z_Malloc( pak_headers_len[0] );
+	Com_Memcpy( buffer, pak_headers[0], pak_headers_len[0] );
+	((int*)buffer)[0] = LittleLong( fs_checksumFeed );
+	pak_purechecksums[0] = Com_BlockChecksum( buffer, pak_headers_len[0] );
+	pak_purechecksums[0] = LittleLong( pak_purechecksums[0] );
+	Z_Free( buffer );
+}
+
+#endif
 
 /*
 ================
@@ -3834,6 +3937,11 @@ void FS_Restart( int checksumFeed ) {
 
 	// set the checksum feed
 	fs_checksumFeed = checksumFeed;
+
+#ifdef URBAN_TERROR
+	// calculate pure checksums for base paks
+	FS_CalculateBasePakPureChecksums( );
+#endif
 
 	// clear pak references
 	FS_ClearPakReferences(0);

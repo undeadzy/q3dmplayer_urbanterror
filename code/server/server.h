@@ -33,6 +33,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	MAX_ENT_CLUSTERS	16
 
+#ifdef URBAN_TERROR
+// Part of Rambetter's patch for protecting against an exploit in UrT
+
+// The value below is how many extra characters we reserve for every instance of '$' in a
+// ut_radio, say, or similar client command.  Some jump maps have very long $location's.
+// On these maps, it may be possible to crash the server if a carefully-crafted
+// client command is sent.  The constant below may require further tweaking.  For example,
+// a text of "$location" would have a total computed length of 25, because "$location" has
+// 9 characters, and we increment that by 16 for the '$'.
+#  define STRLEN_INCREMENT_PER_DOLLAR_VAR 16
+
+// Don't allow more than this many dollared-strings (e.g. $location) in a client command
+// such as ut_radio and say.  Keep this value low for safety, in case some things like
+// $location expand to very large strings in some maps.  There is really no reason to have
+// more than 6 dollar vars (such as $weapon or $location) in things you tell other people.
+#  define MAX_DOLLAR_VARS 6
+
+// When a radio text (as in "ut_radio 1 1 text") is sent, weird things start to happen
+// when the text gets to be greater than 118 in length.  When the text is really large the
+// server will crash.  There is an in-between gray zone above 118, but I don't really want
+// to go there.  This is the maximum length of radio text that can be sent, taking into
+// account increments due to presence of '$'.
+#  define MAX_RADIO_STRLEN 118
+
+// Don't allow more than this text length in a command such as say.  I pulled this
+// value out of my ass because I don't really know exactly when problems start to happen.
+// This value takes into account increments due to the presence of '$'.
+#  define MAX_SAY_STRLEN 256
+#endif
+
 #ifdef USE_VOIP
 #define VOIP_QUEUE_LENGTH 64
 
@@ -134,6 +164,9 @@ typedef struct netchan_buffer_s {
 typedef struct client_s {
 	clientState_t	state;
 	char			userinfo[MAX_INFO_STRING];		// name, etc
+#ifdef URBAN_TERROR
+	char			userinfobuffer[MAX_INFO_STRING]; //used for buffering of user info
+#endif
 
 	char			reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 	int				reliableSequence;		// last added reliable message, not necesarily sent or acknowledged yet
@@ -166,6 +199,9 @@ typedef struct client_s {
 
 	int				deltaMessage;		// frame last client usercmd message
 	int				nextReliableTime;	// svs.time when another reliable command will be allowed
+#ifdef URBAN_TERROR
+	int				nextReliableUserTime; // svs.time when another userinfo change will be allowed
+#endif
 	int				lastPacketTime;		// svs.time when packet was last received
 	int				lastConnectTime;	// svs.time when connection started
 	int				lastSnapshotTime;	// svs.time of last sent snapshot
@@ -361,6 +397,9 @@ int SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 int SV_SendDownloadMessages(void);
 int SV_SendQueuedMessages(void);
 
+#ifdef URBAN_TERROR
+void SV_UpdateUserinfo_f (client_t *cl );
+#endif
 
 //
 // sv_ccmds.c
@@ -376,6 +415,10 @@ void SV_WriteFrameToClient (client_t *client, msg_t *msg);
 void SV_SendMessageToClient( msg_t *msg, client_t *client );
 void SV_SendClientMessages( void );
 void SV_SendClientSnapshot( client_t *client );
+
+#ifdef URBAN_TERROR
+void SV_CheckClientUserinfoTimer( void );
+#endif
 
 //
 // sv_game.c

@@ -1,5 +1,8 @@
-Q3DMPlayer 0.0.1
-================
+Q3DMPlayer 0.0.1 for UrT
+========================
+
+Modified with the undeadzy_iourt changes so it can play Urban Terror 4.x
+demos without any modifications or extra commendline options.
 
 This is a demo player to help with generating stats from quake3 demos.  It
 will run through your demo executing whatever SO/DLL/QVM code that you need.

@@ -1,6 +1,0 @@
-From: undeadzy <q3urt.undead@gmail.com>
-Subject: [PATCH] t/q3dmplayer
-
-ioquake3 demo player using a null sound and renderer
-
-Signed-off-by: undeadzy <q3urt.undead@gmail.com>

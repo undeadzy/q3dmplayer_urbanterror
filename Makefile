@@ -1108,7 +1108,7 @@ endef
 
 define DO_WINDRES
 $(echo_cmd) "WINDRES $<"
-$(Q)$(WINDRES) -i $< -o $@
+$(Q)$(WINDRES) -DURBAN_TERROR=1 -i $< -o $@
 endef
 
 

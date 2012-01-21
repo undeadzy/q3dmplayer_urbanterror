@@ -307,7 +307,11 @@ extern int demo_protocols[];
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
+#  ifdef URBAN_TERROR
+#    define MASTER_SERVER_NAME  "master.urbanterror.info"
+#  else
 #define MASTER_SERVER_NAME	"master.quake3arena.com"
+#  endif
 #endif
 
 #ifndef STANDALONE
@@ -641,7 +645,11 @@ issues.
 #define	MAX_FILE_HANDLES	64
 
 #ifdef DEDICATED
+#   ifdef URBAN_TERROR
+#	define Q3CONFIG_CFG "server.cfg"
+#   else
 #	define Q3CONFIG_CFG "q3config_server.cfg"
+#   endif
 #else
 #	define Q3CONFIG_CFG "q3config.cfg"
 #endif

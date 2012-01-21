@@ -434,7 +434,21 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 		}
 
+#ifdef URBAN_TERROR
+		// From Rambetter's SVN
+		// Note that it is totally possible to flood the console and qconsole.log by being rejected
+		// (high ping, ban, server full, or other) and repeatedly sending a connect packet against the same
+		// challenge.  Prevent this situation by only logging the first time we hit SV_DirectConnect()
+		// for this challenge.
+		if (! challengeptr->connected) {
+			Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
+		}
+		else {
+			Com_DPrintf("Client %i connecting again with %i challenge ping\n", i, ping);
+		}
+#else
 		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
+#endif
 		challengeptr->connected = qtrue;
 	}
 
@@ -1474,7 +1488,18 @@ void SV_UserinfoChanged( client_t *cl ) {
 SV_UpdateUserinfo_f
 ==================
 */
+#ifdef URBAN_TERROR
+void SV_UpdateUserinfo_f( client_t *cl ) {
+	if ( (sv_floodProtect->integer) && (cl->state >= CS_ACTIVE) && (svs.time < cl->nextReliableUserTime) ) {
+		Q_strncpyz( cl->userinfobuffer, Cmd_Argv(1), sizeof(cl->userinfobuffer) );
+		SV_SendServerCommand(cl, "print \"^7Command ^1delayed^7 due to sv_floodprotect.\"");
+		return;
+	}
+	cl->userinfobuffer[0]=0;
+	cl->nextReliableUserTime = svs.time + 5000;
+#else
 static void SV_UpdateUserinfo_f( client_t *cl ) {
+#endif
 	Q_strncpyz( cl->userinfo, Cmd_Argv(1), sizeof(cl->userinfo) );
 
 	SV_UserinfoChanged( cl );
@@ -1547,6 +1572,10 @@ Also called by bot code
 void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 	ucmd_t	*u;
 	qboolean bProcessed = qfalse;
+#ifdef URBAN_TERROR
+	int argsFromOneMaxlen;
+	qboolean exploitDetected = qfalse;
+#endif
 	
 	Cmd_TokenizeString( s );
 
@@ -1563,6 +1592,66 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 		// pass unknown strings to the game
 		if (!u->name && sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED)) {
 			Cmd_Args_Sanitize();
+#ifdef URBAN_TERROR
+// This is from Rambetter to prevent an exploit in Urban Terror
+			argsFromOneMaxlen = -1;
+			if (Q_stricmp("say", Cmd_Argv(0)) == 0 ||
+				Q_stricmp("say_team", Cmd_Argv(0)) == 0) {
+				argsFromOneMaxlen = MAX_SAY_STRLEN;
+			}
+			else if (Q_stricmp("tell", Cmd_Argv(0)) == 0) {
+				// A command will look like "tell 12 hi" or "tell foo hi".  The "12"
+				// and "foo" in the examples will be counted towards MAX_SAY_STRLEN,
+				// plus the space.
+				argsFromOneMaxlen = MAX_SAY_STRLEN;
+			}
+			else if (Q_stricmp("ut_radio", Cmd_Argv(0)) == 0) {
+				// We add 4 to this value because in a command such as
+				// "ut_radio 1 1 affirmative", the args at indices 1 and 2 each
+				// have length 1 and there is a space after them.
+				argsFromOneMaxlen = MAX_RADIO_STRLEN + 4;
+			}
+			if (argsFromOneMaxlen >= 0) {
+				int charCount = 0;
+				int dollarCount = 0;
+				int i;
+				for (i = Cmd_Argc() - 1; i >= 1; i--) {
+					char *arg;
+					for (arg = Cmd_Argv(i); *arg; arg++) {
+						if (++charCount > argsFromOneMaxlen) {
+							exploitDetected = qtrue;
+							break;
+						}
+						if (*arg == '$') {
+							if (++dollarCount > MAX_DOLLAR_VARS) {
+								exploitDetected = qtrue;
+								break;
+							}
+							charCount += STRLEN_INCREMENT_PER_DOLLAR_VAR;
+							if (charCount > argsFromOneMaxlen) {
+								exploitDetected = qtrue;
+								break;
+							}
+						}
+					}
+					if (exploitDetected) {
+						break;
+					}
+					if (i != 1) { // Cmd_ArgsFrom() will add space
+						if (++charCount > argsFromOneMaxlen) {
+							exploitDetected = qtrue;
+							break;
+						}
+					}
+				}
+			}
+			if (exploitDetected) {
+				Com_Printf("Buffer overflow exploit radio/say, possible attempt from %s\n",
+					NET_AdrToString(cl->netchan.remoteAddress));
+				SV_SendServerCommand(cl, "print \"Chat dropped due to message length constraints.\n\"");
+				return;
+			}
+#endif
 			VM_Call( gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
 		}
 	}
