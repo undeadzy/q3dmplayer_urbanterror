@@ -2211,7 +2211,11 @@ A download completed or failed
 void CL_NextDownload(void)
 {
 	char *s;
+#ifdef USE_CURL
 	char *remoteName, *localName;
+#else
+	char *localName;
+#endif
 	qboolean useCURL = qfalse;
 
 	// A download has finished, check whether this matches a referenced checksum
@@ -2236,7 +2240,9 @@ void CL_NextDownload(void)
 
 		if (*s == '@')
 			s++;
+#ifdef USE_CURL
 		remoteName = s;
+#endif
 		
 		if ( (s = strchr(s, '@')) == NULL ) {
 			CL_DownloadsComplete();

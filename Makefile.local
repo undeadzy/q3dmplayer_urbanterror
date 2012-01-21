@@ -5,8 +5,10 @@ VERSION=1.36urt
 # This is a normal option in vanilla ioquake3
 BUILD_STANDALONE=1
 
+BASEGAME=q3ut4
 SERVERBIN=ioUrTded
 CLIENTBIN=ioUrT
+DEMOBIN=demo_player_urt
 
 # Enable urban terror specific functionality.
 # These are all based on ioUrbanTerror.
