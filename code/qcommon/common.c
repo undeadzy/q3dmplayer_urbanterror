@@ -36,11 +36,10 @@ int demo_protocols[] =
 
 #define MAX_NUM_ARGVS	50
 
-/* Needed for some mods like UrT */
-#ifdef DEMO_PLAYER
-#define MIN_DEDICATED_COMHUNKMEGS 256
-#define MIN_COMHUNKMEGS		256
-#define DEF_COMHUNKMEGS		256
+#ifdef URBAN_TERROR
+#  define MIN_DEDICATED_COMHUNKMEGS	96
+#  define MIN_COMHUNKMEGS		256
+#  define DEF_COMHUNKMEGS		256
 #else
 #define MIN_DEDICATED_COMHUNKMEGS 1
 #define MIN_COMHUNKMEGS		56
