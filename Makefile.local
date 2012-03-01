@@ -1,5 +1,13 @@
+# Safe defaults
+VERSION=1.36demo
 BUILD_DEMO_PLAYER=1
 BUILD_SQLITE3=1
+
+# Default is i586 and k8 which is better for distributing to broad audiences.
+# If you are only making an executable for yourself, use native instead.
+# Note: Inside of a VM, it may fail so you are better off with the defaults.
+#I386_ARCH=native
+#ASM_ARCH=native
 
 BUILD_STANDALONE=0
 BUILD_CLIENT=0
@@ -17,6 +25,9 @@ USE_CURL_DLOPEN=0
 USE_CODEC_VORBIS=0
 USE_MUMBLE=0
 USE_VOIP=0
-USE_RENDERER_DLOPEN=0
+
+# You can set this to 1 but it doesn't make sense.  It should always
+# use the null renderer.
+USE_RENDERER_DLOPEN=1
 
 # V=1

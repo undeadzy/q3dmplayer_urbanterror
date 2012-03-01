@@ -52,11 +52,25 @@ ifndef BUILD_MISSIONPACK
 endif
 ifndef BUILD_DEMO_PLAYER
   BUILD_DEMO_PLAYER=0
+endif
+ifndef BUILD_SQLITE3
   BUILD_SQLITE3=0
+endif
+ifndef BUILD_RENDERER_NULL
+  BUILD_RENDERER_NULL=0
 endif
 
 ifneq ($(PLATFORM),darwin)
   BUILD_CLIENT_SMP = 0
+endif
+
+# Set these to 'native' in Makefile.local if you are only compiling this
+# for yourself.
+ifndef I386_ARCH
+  I386_ARCH=i586
+endif
+ifndef ASM_ARCH
+  ASM_ARCH=k8
 endif
 
 #############################################################################
@@ -203,7 +217,11 @@ endif
 
 ifneq ($(BUILD_DEMO_PLAYER),0)
   BUILD_SQLITE3=1
-  DEMO_CFLAGS += -DUSE_SQLITE3=1 -DDEMO_PLAYER=1
+  DEMO_CFLAGS += -DDEMO_PLAYER=1
+
+  ifndef ($(USE_RENDERER_DLOPEN),0)
+    BUILD_RENDERER_NULL=1
+  endif
 endif
 
 ifndef DEBUG_CFLAGS
@@ -221,6 +239,7 @@ BR=$(BUILD_DIR)/release-$(PLATFORM)-$(ARCH)
 CDIR=$(MOUNT_DIR)/client
 SDIR=$(MOUNT_DIR)/server
 RDIR=$(MOUNT_DIR)/renderer
+RNULLDIR=$(MOUNT_DIR)/renderer_null
 CMDIR=$(MOUNT_DIR)/qcommon
 SDLDIR=$(MOUNT_DIR)/sdl
 ASMDIR=$(MOUNT_DIR)/asm
@@ -336,7 +355,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
     HAVE_VM_COMPILED = true
   else
   ifeq ($(ARCH),i386)
-    OPTIMIZEVM = -O3 -march=i586 -fomit-frame-pointer \
+    OPTIMIZEVM = -O3 -march=$(I386_ARCH) -fomit-frame-pointer \
       -funroll-loops -falign-loops=2 -falign-jumps=2 \
       -falign-functions=2 -fstrength-reduce
     OPTIMIZE = $(OPTIMIZEVM) -ffast-math
@@ -522,7 +541,7 @@ ifeq ($(PLATFORM),mingw32)
     HAVE_VM_COMPILED = true
   endif
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM = -O3 -march=i586 -fno-omit-frame-pointer \
+    OPTIMIZEVM = -O3 -march=$(I386_ARCH) -fno-omit-frame-pointer \
       -falign-loops=2 -funroll-loops -falign-jumps=2 -falign-functions=2 \
       -fstrength-reduce
     OPTIMIZE = $(OPTIMIZEVM) -ffast-math
@@ -795,7 +814,7 @@ ifeq ($(PLATFORM),sunos)
     HAVE_VM_COMPILED=true
   else
   ifeq ($(ARCH),i386)
-    OPTIMIZEVM += -march=i586 -fomit-frame-pointer \
+    OPTIMIZEVM += -march=$(I386_ARCH) -fomit-frame-pointer \
       -falign-loops=2 -falign-jumps=2 \
       -falign-functions=2 -fstrength-reduce
     HAVE_VM_COMPILED=true
@@ -865,6 +884,12 @@ ifneq ($(BUILD_CLIENT),0)
     ifneq ($(BUILD_CLIENT_SMP),0)
       TARGETS += $(B)/renderer_opengl1_smp_$(SHLIBNAME)
     endif
+    ifneq ($(BUILD_RENDERER_NULL),0)
+      TARGETS += $(B)/renderer_null_$(SHLIBNAME)
+      ifneq ($(BUILD_CLIENT_SMP),0)
+        TARGETS += $(B)/renderer_null_smp_$(SHLIBNAME)
+      endif
+    endif
   else
     TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
     ifneq ($(BUILD_CLIENT_SMP),0)
@@ -914,6 +939,9 @@ ifneq ($(BUILD_GAME_QVM),0)
 endif
 
 ifneq ($(BUILD_SQLITE3),0)
+  ifneq ($(BUILD_DEMO_PLAYER),0)
+    DEMO_CFLAGS += -DUSE_SQLITE3=1
+  endif
   SQL_CFLAGS += -DUSE_SQLITE3=1 -DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION=1
   TARGETS += \
     $(B)/sqlite3$(FULLBINEXT)
@@ -1034,7 +1062,7 @@ endef
 
 define DO_DP_REF_CC
 $(echo_cmd) "DP_REF_CC $<"
-$(Q)$(CC) $(SHLIBCFLAGS) $(CFLAGS) $(OPTIMIZE) -DDEMO_PLAYER=1 -o $@ -c $<
+$(Q)$(CC) $(SHLIBCFLAGS) $(CFLAGS) $(OPTIMIZE) $(DEMO_CFLAGS) -o $@ -c $<
 endef
 
 define DO_SMP_CC
@@ -1166,6 +1194,18 @@ targets: makedirs
 		echo "    $$i"; \
 	done
 	@echo ""
+	@echo "  DEMO_CFLAGS:"
+	-@for i in $(DEMO_CFLAGS); \
+	do \
+		echo "    $$i"; \
+	done
+	@echo ""
+	@echo "  SQL_CFLAGS:"
+	-@for i in $(SQL_CFLAGS); \
+	do \
+		echo "    $$i"; \
+	done
+	@echo ""
 	@echo "  LDFLAGS:"
 	-@for i in $(LDFLAGS); \
 	do \
@@ -1201,8 +1241,8 @@ makedirs:
 	@if [ ! -d $(B)/sqlite3 ];then $(MKDIR) $(B)/sqlite3;fi
 	@if [ ! -d $(B)/demo_player ];then $(MKDIR) $(B)/demo_player;fi
 	@if [ ! -d $(B)/renderer ];then $(MKDIR) $(B)/renderer;fi
+	@if [ ! -d $(B)/renderer_null ];then $(MKDIR) $(B)/renderer_null;fi
 	@if [ ! -d $(B)/renderersmp ];then $(MKDIR) $(B)/renderersmp;fi
-	@if [ ! -d $(B)/null_renderer ];then $(MKDIR) $(B)/null_renderer;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
 	@if [ ! -d $(B)/$(BASEGAME) ];then $(MKDIR) $(B)/$(BASEGAME);fi
 	@if [ ! -d $(B)/$(BASEGAME)/cgame ];then $(MKDIR) $(B)/$(BASEGAME)/cgame;fi
@@ -1507,6 +1547,9 @@ else
 	$(B)/client/con_tty.o
 endif
 
+Q3RNULLOBJ = \
+  $(B)/renderer_null/tr_null.o
+
 Q3ROBJ = \
   $(B)/renderer/tr_animation.o \
   $(B)/renderer/tr_backend.o \
@@ -1775,6 +1818,16 @@ $(B)/renderer_opengl1_smp_$(SHLIBNAME): $(Q3ROBJ) $(Q3POBJ_SMP)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(Q3POBJ_SMP) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
+
+$(B)/renderer_null_$(SHLIBNAME): $(Q3RNULLOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3RNULLOBJ) \
+		$(THREAD_LIBS) $(LIBS)
+
+$(B)/renderer_null_smp_$(SHLIBNAME): $(Q3RNULLOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3RNULLOBJ) \
+		$(THREAD_LIBS) $(LIBS)
 else
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
@@ -1895,17 +1948,6 @@ ifneq ($(BUILD_SQLITE3),0)
     $(B)/demo_player/sql_log.o
 endif
 
-Q3DPROBJ = \
-  $(B)/null_renderer/null_renderer.o
-
-ifneq ($(USE_RENDERER_DLOPEN), 0)
-  Q3DPROBJ += \
-    $(B)/null_renderer/q_shared.o \
-    $(B)/null_renderer/puff.o \
-    $(B)/null_renderer/q_math.o \
-    $(B)/null_renderer/tr_subs.o
-endif
-
 ifeq ($(ARCH),i386)
   Q3DPOBJ += \
     $(B)/demo_player/matha.o \
@@ -2016,15 +2058,11 @@ $(B)/demo_player$(FULLBINEXT): $(Q3DPOBJ)
 		-o $@ $(Q3DPOBJ) \
 		$(CLIENT_LIBS) $(LIBS)
 
-$(B)/renderer_null_$(SHLIBNAME): $(Q3DPROBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3DPROBJ) \
-		$(THREAD_LIBS) $(LIBS)
 else
-$(B)/demo_player$(FULLBINEXT): $(Q3DPOBJ) $(Q3DPROBJ)
+$(B)/demo_player$(FULLBINEXT): $(Q3DPOBJ) $(Q3RNULLOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(DEMO_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
-		-o $@ $(Q3DPOBJ) $(Q3DPROBJ) \
+		-o $@ $(Q3DPOBJ) $(Q3RNULLOBJ) \
 		$(CLIENT_LIBS) $(LIBS)
 endif
 
@@ -2519,7 +2557,7 @@ $(B)/client/%.o: $(ASMDIR)/%.s
 
 # k8 so inline assembler knows about SSE
 $(B)/client/%.o: $(ASMDIR)/%.c
-	$(DO_CC) -march=k8
+	$(DO_CC) -march=$(ASM_ARCH)
 
 $(B)/client/%.o: $(CDIR)/%.c
 	$(DO_CC)
@@ -2577,7 +2615,7 @@ $(B)/demo_player/%.o: $(ASMDIR)/%.s
 
 # k8 so inline assembler knows about SSE
 $(B)/demo_player/%.o: $(ASMDIR)/%.c
-	$(DO_DP_CC) -march=k8
+	$(DO_DP_CC) -march=$(ASM_ARCH)
 
 $(B)/demo_player/%.o: $(CDIR)/%.c
 	$(DO_DP_CC)
@@ -2610,20 +2648,9 @@ $(B)/demo_player/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)
 
 
-$(B)/null_renderer/%.o: $(NDIR)/%.c
+$(B)/renderer_null/%.o: $(RNULLDIR)/%.c
 	$(DO_DP_REF_CC)
 
-#$(B)/null_renderer/%.o: $(CMDIR)/%.c
-#	$(DO_DP_REF_CC)
-#
-#$(B)/null_renderer/%.o: $(SDLDIR)/%.c
-#	$(DO_DP_REF_CC)
-#
-#$(B)/null_renderer/%.o: $(JPDIR)/%.c
-#	$(DO_DP_REF_CC)
-#
-#$(B)/null_renderer/%.o: $(RDIR)/%.c
-#	$(DO_DP_REF_CC)
 
 $(B)/demo_player/%.o: $(NDIR)/%.c
 	$(DO_DP_CC)
@@ -2633,7 +2660,7 @@ $(B)/demo_player/%.o: $(SQLDIR)/%.c
 
 # k8 so inline assembler knows about SSE
 $(B)/ded/%.o: $(ASMDIR)/%.c
-	$(DO_CC) -march=k8
+	$(DO_CC) -march=$(ASM_ARCH)
 
 $(B)/ded/%.o: $(SDIR)/%.c
 	$(DO_DED_CC)
@@ -2754,7 +2781,7 @@ $(B)/$(MISSIONPACK)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 # MISC
 #############################################################################
 
-OBJ = $(Q3OBJ) $(Q3POBJ) $(Q3POBJ_SMP) $(Q3ROBJ) $(Q3DOBJ) $(Q3DPOBJ) $(Q3DPROBJ) \
+OBJ = $(Q3OBJ) $(Q3POBJ) $(Q3POBJ_SMP) $(Q3ROBJ) $(Q3DOBJ) $(Q3DPOBJ) $(Q3RNULLOBJ) \
   $(MPGOBJ) $(Q3GOBJ) $(Q3CGOBJ) $(MPCGOBJ) $(Q3UIOBJ) $(MPUIOBJ) \
   $(MPGVMOBJ) $(Q3GVMOBJ) $(Q3CGVMOBJ) $(MPCGVMOBJ) $(Q3UIVMOBJ) $(MPUIVMOBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
@@ -2775,12 +2802,17 @@ ifneq ($(BUILD_CLIENT),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)$(FULLBINEXT)
   ifneq ($(USE_RENDERER_DLOPEN),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl1_$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl1_$(SHLIBNAME)
+    ifneq ($(BUILD_RENDERER_NULL),0)
+	  $(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_null_$(SHLIBNAME) $(COPYBINDIR)/renderer_null_$(SHLIBNAME)
+    endif
   endif
 endif
 
 ifneq ($(BUILD_DEMO_PLAYER),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/demo_player$(FULLBINEXT) $(COPYBINDIR)/demo_player$(FULLBINEXT)
+  ifneq ($(USE_RENDERER_DLOPEN),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_null_$(SHLIBNAME) $(COPYBINDIR)/renderer_null_$(SHLIBNAME)
+  endif
 endif
 
 ifneq ($(BUILD_SQLITE3),0)
@@ -2791,6 +2823,9 @@ endif
 ifneq ($(BUILD_CLIENT_SMP),0)
   ifneq ($(USE_RENDERER_DLOPEN),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl1_smp_$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl1_smp_$(SHLIBNAME)
+    ifneq ($(BUILD_RENDERER_NULL),0)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_null_smp_$(SHLIBNAME) $(COPYBINDIR)/renderer_null_smp_$(SHLIBNAME)
+    endif
   else
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)-smp$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)-smp$(FULLBINEXT)
   endif
