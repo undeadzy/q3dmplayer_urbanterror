@@ -900,9 +900,9 @@ endif
 
 ifneq ($(BUILD_DEMO_PLAYER),0)
   ifneq ($(USE_RENDERER_DLOPEN),0)
-    TARGETS += $(B)/demo_player$(FULLBINEXT) $(B)/renderer_null_$(SHLIBNAME)
+    TARGETS += $(B)/$(DEMOBIN)$(FULLBINEXT) $(B)/renderer_null_$(SHLIBNAME)
   else
-    TARGETS += $(B)/demo_player$(FULLBINEXT)
+    TARGETS += $(B)/$(DEMOBIN)$(FULLBINEXT)
   endif
 endif
 
@@ -1239,7 +1239,7 @@ makedirs:
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/sqlite3 ];then $(MKDIR) $(B)/sqlite3;fi
-	@if [ ! -d $(B)/demo_player ];then $(MKDIR) $(B)/demo_player;fi
+	@if [ ! -d $(B)/$(DEMOBIN) ];then $(MKDIR) $(B)/$(DEMOBIN);fi
 	@if [ ! -d $(B)/renderer ];then $(MKDIR) $(B)/renderer;fi
 	@if [ ! -d $(B)/renderer_null ];then $(MKDIR) $(B)/renderer_null;fi
 	@if [ ! -d $(B)/renderersmp ];then $(MKDIR) $(B)/renderersmp;fi
@@ -1855,211 +1855,211 @@ endif
 #############################################################################
 
 Q3DPOBJ = \
-  $(B)/demo_player/cl_cgame.o \
-  $(B)/demo_player/cl_cin.o \
-  $(B)/demo_player/cl_console.o \
-  $(B)/demo_player/cl_input.o \
-  $(B)/demo_player/cl_keys.o \
-  $(B)/demo_player/cl_main.o \
-  $(B)/demo_player/cl_net_chan.o \
-  $(B)/demo_player/cl_parse.o \
-  $(B)/demo_player/cl_scrn.o \
-  $(B)/demo_player/cl_ui.o \
-  $(B)/demo_player/cl_avi.o \
+  $(B)/$(DEMOBIN)/cl_cgame.o \
+  $(B)/$(DEMOBIN)/cl_cin.o \
+  $(B)/$(DEMOBIN)/cl_console.o \
+  $(B)/$(DEMOBIN)/cl_input.o \
+  $(B)/$(DEMOBIN)/cl_keys.o \
+  $(B)/$(DEMOBIN)/cl_main.o \
+  $(B)/$(DEMOBIN)/cl_net_chan.o \
+  $(B)/$(DEMOBIN)/cl_parse.o \
+  $(B)/$(DEMOBIN)/cl_scrn.o \
+  $(B)/$(DEMOBIN)/cl_ui.o \
+  $(B)/$(DEMOBIN)/cl_avi.o \
   \
-  $(B)/demo_player/cm_load.o \
-  $(B)/demo_player/cm_patch.o \
-  $(B)/demo_player/cm_polylib.o \
-  $(B)/demo_player/cm_test.o \
-  $(B)/demo_player/cm_trace.o \
+  $(B)/$(DEMOBIN)/cm_load.o \
+  $(B)/$(DEMOBIN)/cm_patch.o \
+  $(B)/$(DEMOBIN)/cm_polylib.o \
+  $(B)/$(DEMOBIN)/cm_test.o \
+  $(B)/$(DEMOBIN)/cm_trace.o \
   \
-  $(B)/demo_player/cmd.o \
-  $(B)/demo_player/common.o \
-  $(B)/demo_player/cvar.o \
-  $(B)/demo_player/files.o \
-  $(B)/demo_player/md4.o \
-  $(B)/demo_player/md5.o \
-  $(B)/demo_player/msg.o \
-  $(B)/demo_player/net_chan.o \
-  $(B)/demo_player/net_ip.o \
-  $(B)/demo_player/huffman.o \
+  $(B)/$(DEMOBIN)/cmd.o \
+  $(B)/$(DEMOBIN)/common.o \
+  $(B)/$(DEMOBIN)/cvar.o \
+  $(B)/$(DEMOBIN)/files.o \
+  $(B)/$(DEMOBIN)/md4.o \
+  $(B)/$(DEMOBIN)/md5.o \
+  $(B)/$(DEMOBIN)/msg.o \
+  $(B)/$(DEMOBIN)/net_chan.o \
+  $(B)/$(DEMOBIN)/net_ip.o \
+  $(B)/$(DEMOBIN)/huffman.o \
   \
-  $(B)/demo_player/null_input.o \
-  $(B)/demo_player/null_snddma.o \
-  $(B)/demo_player/null_sndmain.o \
+  $(B)/$(DEMOBIN)/null_input.o \
+  $(B)/$(DEMOBIN)/null_snddma.o \
+  $(B)/$(DEMOBIN)/null_sndmain.o \
   \
-  $(B)/demo_player/cl_curl.o \
+  $(B)/$(DEMOBIN)/cl_curl.o \
   \
-  $(B)/demo_player/sv_bot.o \
-  $(B)/demo_player/sv_ccmds.o \
-  $(B)/demo_player/sv_client.o \
-  $(B)/demo_player/sv_game.o \
-  $(B)/demo_player/sv_init.o \
-  $(B)/demo_player/sv_main.o \
-  $(B)/demo_player/sv_net_chan.o \
-  $(B)/demo_player/sv_snapshot.o \
-  $(B)/demo_player/sv_world.o \
+  $(B)/$(DEMOBIN)/sv_bot.o \
+  $(B)/$(DEMOBIN)/sv_ccmds.o \
+  $(B)/$(DEMOBIN)/sv_client.o \
+  $(B)/$(DEMOBIN)/sv_game.o \
+  $(B)/$(DEMOBIN)/sv_init.o \
+  $(B)/$(DEMOBIN)/sv_main.o \
+  $(B)/$(DEMOBIN)/sv_net_chan.o \
+  $(B)/$(DEMOBIN)/sv_snapshot.o \
+  $(B)/$(DEMOBIN)/sv_world.o \
   \
-  $(B)/demo_player/q_math.o \
-  $(B)/demo_player/q_shared.o \
+  $(B)/$(DEMOBIN)/q_math.o \
+  $(B)/$(DEMOBIN)/q_shared.o \
   \
-  $(B)/demo_player/unzip.o \
-  $(B)/demo_player/ioapi.o \
-  $(B)/demo_player/puff.o \
-  $(B)/demo_player/vm.o \
-  $(B)/demo_player/vm_interpreted.o \
+  $(B)/$(DEMOBIN)/unzip.o \
+  $(B)/$(DEMOBIN)/ioapi.o \
+  $(B)/$(DEMOBIN)/puff.o \
+  $(B)/$(DEMOBIN)/vm.o \
+  $(B)/$(DEMOBIN)/vm_interpreted.o \
   \
-  $(B)/demo_player/be_aas_bspq3.o \
-  $(B)/demo_player/be_aas_cluster.o \
-  $(B)/demo_player/be_aas_debug.o \
-  $(B)/demo_player/be_aas_entity.o \
-  $(B)/demo_player/be_aas_file.o \
-  $(B)/demo_player/be_aas_main.o \
-  $(B)/demo_player/be_aas_move.o \
-  $(B)/demo_player/be_aas_optimize.o \
-  $(B)/demo_player/be_aas_reach.o \
-  $(B)/demo_player/be_aas_route.o \
-  $(B)/demo_player/be_aas_routealt.o \
-  $(B)/demo_player/be_aas_sample.o \
-  $(B)/demo_player/be_ai_char.o \
-  $(B)/demo_player/be_ai_chat.o \
-  $(B)/demo_player/be_ai_gen.o \
-  $(B)/demo_player/be_ai_goal.o \
-  $(B)/demo_player/be_ai_move.o \
-  $(B)/demo_player/be_ai_weap.o \
-  $(B)/demo_player/be_ai_weight.o \
-  $(B)/demo_player/be_ea.o \
-  $(B)/demo_player/be_interface.o \
-  $(B)/demo_player/l_crc.o \
-  $(B)/demo_player/l_libvar.o \
-  $(B)/demo_player/l_log.o \
-  $(B)/demo_player/l_memory.o \
-  $(B)/demo_player/l_precomp.o \
-  $(B)/demo_player/l_script.o \
-  $(B)/demo_player/l_struct.o \
+  $(B)/$(DEMOBIN)/be_aas_bspq3.o \
+  $(B)/$(DEMOBIN)/be_aas_cluster.o \
+  $(B)/$(DEMOBIN)/be_aas_debug.o \
+  $(B)/$(DEMOBIN)/be_aas_entity.o \
+  $(B)/$(DEMOBIN)/be_aas_file.o \
+  $(B)/$(DEMOBIN)/be_aas_main.o \
+  $(B)/$(DEMOBIN)/be_aas_move.o \
+  $(B)/$(DEMOBIN)/be_aas_optimize.o \
+  $(B)/$(DEMOBIN)/be_aas_reach.o \
+  $(B)/$(DEMOBIN)/be_aas_route.o \
+  $(B)/$(DEMOBIN)/be_aas_routealt.o \
+  $(B)/$(DEMOBIN)/be_aas_sample.o \
+  $(B)/$(DEMOBIN)/be_ai_char.o \
+  $(B)/$(DEMOBIN)/be_ai_chat.o \
+  $(B)/$(DEMOBIN)/be_ai_gen.o \
+  $(B)/$(DEMOBIN)/be_ai_goal.o \
+  $(B)/$(DEMOBIN)/be_ai_move.o \
+  $(B)/$(DEMOBIN)/be_ai_weap.o \
+  $(B)/$(DEMOBIN)/be_ai_weight.o \
+  $(B)/$(DEMOBIN)/be_ea.o \
+  $(B)/$(DEMOBIN)/be_interface.o \
+  $(B)/$(DEMOBIN)/l_crc.o \
+  $(B)/$(DEMOBIN)/l_libvar.o \
+  $(B)/$(DEMOBIN)/l_log.o \
+  $(B)/$(DEMOBIN)/l_memory.o \
+  $(B)/$(DEMOBIN)/l_precomp.o \
+  $(B)/$(DEMOBIN)/l_script.o \
+  $(B)/$(DEMOBIN)/l_struct.o \
   \
-  $(B)/demo_player/con_passive.o \
-  $(B)/demo_player/con_log.o \
-  $(B)/demo_player/sys_main.o
+  $(B)/$(DEMOBIN)/con_passive.o \
+  $(B)/$(DEMOBIN)/con_log.o \
+  $(B)/$(DEMOBIN)/sys_main.o
 
 ifneq ($(BUILD_SQLITE3),0)
   Q3DPOBJ += \
-    $(B)/demo_player/sqlite3.o \
-    $(B)/demo_player/sql_log.o
+    $(B)/$(DEMOBIN)/sqlite3.o \
+    $(B)/$(DEMOBIN)/sql_log.o
 endif
 
 ifeq ($(ARCH),i386)
   Q3DPOBJ += \
-    $(B)/demo_player/matha.o \
-    $(B)/demo_player/snapvector.o \
-    $(B)/demo_player/ftola.o
+    $(B)/$(DEMOBIN)/matha.o \
+    $(B)/$(DEMOBIN)/snapvector.o \
+    $(B)/$(DEMOBIN)/ftola.o
 endif
 ifeq ($(ARCH),x86)
   Q3DPOBJ += \
-    $(B)/demo_player/matha.o \
-    $(B)/demo_player/snapvector.o \
-    $(B)/demo_player/ftola.o
+    $(B)/$(DEMOBIN)/matha.o \
+    $(B)/$(DEMOBIN)/snapvector.o \
+    $(B)/$(DEMOBIN)/ftola.o
 endif
 ifeq ($(ARCH),x86_64)
   Q3DPOBJ += \
-    $(B)/demo_player/snapvector.o \
-    $(B)/demo_player/ftola.o
+    $(B)/$(DEMOBIN)/snapvector.o \
+    $(B)/$(DEMOBIN)/ftola.o
 endif
 ifeq ($(ARCH),amd64)
   Q3DPOBJ += \
-    $(B)/demo_player/snapvector.o \
-    $(B)/demo_player/ftola.o
+    $(B)/$(DEMOBIN)/snapvector.o \
+    $(B)/$(DEMOBIN)/ftola.o
 endif
 ifeq ($(ARCH),x64)
   Q3DPOBJ += \
-    $(B)/demo_player/snapvector.o \
-    $(B)/demo_player/ftola.o
+    $(B)/$(DEMOBIN)/snapvector.o \
+    $(B)/$(DEMOBIN)/ftola.o
 endif
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
 Q3DPOBJ += \
-  $(B)/demo_player/adler32.o \
-  $(B)/demo_player/crc32.o \
-  $(B)/demo_player/inffast.o \
-  $(B)/demo_player/inflate.o \
-  $(B)/demo_player/inftrees.o \
-  $(B)/demo_player/zutil.o
+  $(B)/$(DEMOBIN)/adler32.o \
+  $(B)/$(DEMOBIN)/crc32.o \
+  $(B)/$(DEMOBIN)/inffast.o \
+  $(B)/$(DEMOBIN)/inflate.o \
+  $(B)/$(DEMOBIN)/inftrees.o \
+  $(B)/$(DEMOBIN)/zutil.o
 endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),i386)
     Q3DPOBJ += \
-      $(B)/demo_player/vm_x86.o
+      $(B)/$(DEMOBIN)/vm_x86.o
   endif
   ifeq ($(ARCH),x86)
     Q3DPOBJ += \
-      $(B)/demo_player/vm_x86.o
+      $(B)/$(DEMOBIN)/vm_x86.o
   endif
   ifeq ($(ARCH),x86_64)
     ifeq ($(USE_OLD_VM64),1)
       Q3DPOBJ += \
-        $(B)/demo_player/vm_x86_64.o \
-        $(B)/demo_player/vm_x86_64_assembler.o
+        $(B)/$(DEMOBIN)/vm_x86_64.o \
+        $(B)/$(DEMOBIN)/vm_x86_64_assembler.o
     else
       Q3DPOBJ += \
-        $(B)/demo_player/vm_x86.o
+        $(B)/$(DEMOBIN)/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),amd64)
     ifeq ($(USE_OLD_VM64),1)
       Q3DPOBJ += \
-        $(B)/demo_player/vm_x86_64.o \
-        $(B)/demo_player/vm_x86_64_assembler.o
+        $(B)/$(DEMOBIN)/vm_x86_64.o \
+        $(B)/$(DEMOBIN)/vm_x86_64_assembler.o
     else
       Q3DPOBJ += \
-        $(B)/demo_player/vm_x86.o
+        $(B)/$(DEMOBIN)/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),x64)
     ifeq ($(USE_OLD_VM64),1)
       Q3DPOBJ += \
-        $(B)/demo_player/vm_x86_64.o \
-        $(B)/demo_player/vm_x86_64_assembler.o
+        $(B)/$(DEMOBIN)/vm_x86_64.o \
+        $(B)/$(DEMOBIN)/vm_x86_64_assembler.o
     else
       Q3DPOBJ += \
-        $(B)/demo_player/vm_x86.o
+        $(B)/$(DEMOBIN)/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),ppc)
-    Q3DPOBJ += $(B)/demo_player/vm_powerpc.o $(B)/demo_player/vm_powerpc_asm.o
+    Q3DPOBJ += $(B)/$(DEMOBIN)/vm_powerpc.o $(B)/$(DEMOBIN)/vm_powerpc_asm.o
   endif
   ifeq ($(ARCH),ppc64)
-    Q3DPOBJ += $(B)/demo_player/vm_powerpc.o $(B)/demo_player/vm_powerpc_asm.o
+    Q3DPOBJ += $(B)/$(DEMOBIN)/vm_powerpc.o $(B)/$(DEMOBIN)/vm_powerpc_asm.o
   endif
   ifeq ($(ARCH),sparc)
-    Q3DPOBJ += $(B)/demo_player/vm_sparc.o
+    Q3DPOBJ += $(B)/$(DEMOBIN)/vm_sparc.o
   endif
 endif
 
 ifeq ($(PLATFORM),mingw32)
   Q3DPOBJ += \
-    $(B)/demo_player/win_resource.o \
-    $(B)/demo_player/sys_win32.o
+    $(B)/$(DEMOBIN)/win_resource.o \
+    $(B)/$(DEMOBIN)/sys_win32.o
 else
   Q3DPOBJ += \
-    $(B)/demo_player/sys_unix.o
+    $(B)/$(DEMOBIN)/sys_unix.o
 endif
 
 ifeq ($(PLATFORM),darwin)
   Q3DPOBJ += \
-    $(B)/demo_player/sys_osx.o
+    $(B)/$(DEMOBIN)/sys_osx.o
 endif
 
 # SMP is for OpenGL so there's no reason to define one here.
 ifneq ($(USE_RENDERER_DLOPEN),0)
-$(B)/demo_player$(FULLBINEXT): $(Q3DPOBJ)
+$(B)/$(DEMOBIN)$(FULLBINEXT): $(Q3DPOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(DEMO_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3DPOBJ) \
 		$(CLIENT_LIBS) $(LIBS)
 
 else
-$(B)/demo_player$(FULLBINEXT): $(Q3DPOBJ) $(Q3RNULLOBJ)
+$(B)/$(DEMOBIN)$(FULLBINEXT): $(Q3DPOBJ) $(Q3RNULLOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(DEMO_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3DPOBJ) $(Q3RNULLOBJ) \
@@ -2610,41 +2610,41 @@ $(B)/ded/%.o: $(ASMDIR)/%.s
 	$(DO_AS)
 
 # Demo parser
-$(B)/demo_player/%.o: $(ASMDIR)/%.s
+$(B)/$(DEMOBIN)/%.o: $(ASMDIR)/%.s
 	$(DO_AS)
 
 # k8 so inline assembler knows about SSE
-$(B)/demo_player/%.o: $(ASMDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(ASMDIR)/%.c
 	$(DO_DP_CC) -march=$(ASM_ARCH)
 
-$(B)/demo_player/%.o: $(CDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(CDIR)/%.c
 	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(SDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(SDIR)/%.c
 	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(CMDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(CMDIR)/%.c
 	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(BLIBDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(BLIBDIR)/%.c
 	$(DO_BOT_CC)
 
-#$(B)/demo_player/%.o: $(SPEEXDIR)/%.c
+#$(B)/$(DEMOBIN)/%.o: $(SPEEXDIR)/%.c
 #	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(ZDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(ZDIR)/%.c
 	$(DO_DP_CC)
 
-#$(B)/demo_player/%.o: $(SDLDIR)/%.c
+#$(B)/$(DEMOBIN)/%.o: $(SDLDIR)/%.c
 #	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(SYSDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(SYSDIR)/%.c
 	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(SYSDIR)/%.m
+$(B)/$(DEMOBIN)/%.o: $(SYSDIR)/%.m
 	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(SYSDIR)/%.rc
+$(B)/$(DEMOBIN)/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)
 
 
@@ -2652,10 +2652,10 @@ $(B)/renderer_null/%.o: $(RNULLDIR)/%.c
 	$(DO_DP_REF_CC)
 
 
-$(B)/demo_player/%.o: $(NDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(NDIR)/%.c
 	$(DO_DP_CC)
 
-$(B)/demo_player/%.o: $(SQLDIR)/%.c
+$(B)/$(DEMOBIN)/%.o: $(SQLDIR)/%.c
 	$(DO_SQL_CC)
 
 # k8 so inline assembler knows about SSE
@@ -2809,7 +2809,7 @@ ifneq ($(BUILD_CLIENT),0)
 endif
 
 ifneq ($(BUILD_DEMO_PLAYER),0)
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/demo_player$(FULLBINEXT) $(COPYBINDIR)/demo_player$(FULLBINEXT)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(DEMOBIN)$(FULLBINEXT) $(COPYBINDIR)/$(DEMOBIN)$(FULLBINEXT)
   ifneq ($(USE_RENDERER_DLOPEN),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_null_$(SHLIBNAME) $(COPYBINDIR)/renderer_null_$(SHLIBNAME)
   endif
