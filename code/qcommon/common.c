@@ -3059,14 +3059,9 @@ Com_Frame
 =================
 */
 void Com_Frame( void ) {
-#ifdef DEMO_PLAYER
-	int		msec;
-	static int	lastTime = 0;
-#else
 	int		msec, minMsec;
 	int		timeVal, timeValSV;
 	static int	lastTime = 0, bias = 0;
-#endif
  
 	int		timeBeforeFirstEvents;
 	int		timeBeforeServer;
@@ -3095,8 +3090,6 @@ void Com_Frame( void ) {
 		timeBeforeFirstEvents = Sys_Milliseconds ();
 	}
 
-// No need to call NET_Sleep (wait for network)
-#ifndef DEMO_PLAYER
 	// Figure out how much time we have
 	if(!com_timedemo->integer)
 	{
@@ -3127,6 +3120,10 @@ void Com_Frame( void ) {
 	else
 		minMsec = 1;
 
+#ifdef DEMO_PLAYER
+	// Don't wait in a time demo
+	if (! com_timedemo->integer) {
+#endif
 	do
 	{
 		if(com_sv_running->integer)
@@ -3146,6 +3143,8 @@ void Com_Frame( void ) {
 		else
 			NET_Sleep(timeVal - 1);
 	} while(Com_TimeVal(minMsec));
+#ifdef DEMO_PLAYER
+	}
 #endif
 	
 	lastTime = com_frameTime;
