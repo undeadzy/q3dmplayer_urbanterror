@@ -480,8 +480,13 @@ void S_Init( void )
 	s_muteWhenMinimized = Cvar_Get( "s_muteWhenMinimized", "0", CVAR_ARCHIVE );
 	s_muteWhenUnfocused = Cvar_Get( "s_muteWhenUnfocused", "0", CVAR_ARCHIVE );
 
+#ifdef DEMO_PLAYER
+	cv = Cvar_Get( "s_initsound", "0", 0 );
+	if(1) {
+#else
 	cv = Cvar_Get( "s_initsound", "1", 0 );
 	if( !cv->integer ) {
+#endif
 		Com_Printf( "Sound disabled.\n" );
 	} else {
 

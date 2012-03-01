@@ -1,5 +1,5 @@
 # Build Urban Terror (ioUrbanTerror)
-VERSION=1.36urt
+VERSION=1.36urtdemo
 
 # This tells ioquake3 to treat this as a standalone game.
 # This is a normal option in vanilla ioquake3
@@ -15,11 +15,11 @@ DEMOBIN=demo_player_urt
 # These are all based on ioUrbanTerror.
 CFLAGS += -DURBAN_TERROR=1
 
-# Workaround silly FTW ban on "hacker" qport.
-# You can use:  +set net_qport 12345 instead if you only use one config on one
-# computer.
-# http://www.ftwgl.com/forums/showthread.php?t=7772
-CFLAGS += -DURBAN_TERROR_QPORT=12345
+# Default is i586 and k8 which is better for distributing to broad audiences.
+# If you are only making an executable for yourself, use native instead.
+# Note: Inside of a VM, it may fail so you are better off with the defaults.
+#I386_ARCH=native
+#ASM_ARCH=native
 
 # Default is i586 and k8 which is better for distributing to broad audiences.
 # If you are only making an executable for yourself, use native instead.
@@ -48,6 +48,9 @@ USE_CURL_DLOPEN=0
 USE_CODEC_VORBIS=0
 USE_MUMBLE=0
 USE_VOIP=0
+
+# You can set this to 1 but it doesn't make sense.  It should always
+# use the null renderer.
 USE_RENDERER_DLOPEN=0
 
 # V=1
