@@ -195,6 +195,10 @@ ifndef USE_VOIP
 USE_VOIP=1
 endif
 
+ifndef USE_FREETYPE
+USE_FREETYPE=0
+endif
+
 ifndef USE_INTERNAL_SPEEX
 USE_INTERNAL_SPEEX=1
 endif
@@ -277,6 +281,7 @@ ifneq ($(BUILD_CLIENT),0)
     OPENAL_LIBS=$(shell pkg-config --silence-errors --libs openal)
     SDL_CFLAGS=$(shell pkg-config --silence-errors --cflags sdl|sed 's/-Dmain=SDL_main//')
     SDL_LIBS=$(shell pkg-config --silence-errors --libs sdl)
+    FREETYPE_CFLAGS=$(shell pkg-config --silence-errors --cflags freetype2)
   endif
   # Use sdl-config if all else fails
   ifeq ($(SDL_CFLAGS),)
@@ -416,6 +421,10 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
     CLIENT_CFLAGS += -I$(SDLHDIR)/include
   endif
 
+  ifeq ($(USE_FREETYPE),1)
+    BASE_CFLAGS += $(FREETYPE_CFLAGS)
+  endif
+
   ifeq ($(ARCH),i386)
     # linux32 make ...
     BASE_CFLAGS += -m32
@@ -468,6 +477,10 @@ ifeq ($(PLATFORM),darwin)
     ifneq ($(USE_CURL_DLOPEN),1)
       CLIENT_LIBS += -lcurl
     endif
+  endif
+
+  ifeq ($(USE_FREETYPE),1)
+    BASE_CFLAGS += $(FREETYPE_CFLAGS)
   endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
@@ -559,6 +572,10 @@ ifeq ($(PLATFORM),mingw32)
   CLIENT_LIBS = -lgdi32 -lole32
   RENDERER_LIBS = -lgdi32 -lole32 -lopengl32
   
+  ifeq ($(USE_FREETYPE),1)
+    BASE_CFLAGS += -Ifreetype2
+  endif
+
   ifeq ($(USE_CURL),1)
     CLIENT_CFLAGS += $(CURL_CFLAGS)
     ifneq ($(USE_CURL_DLOPEN),1)
@@ -866,6 +883,10 @@ endif
 
 TARGETS =
 
+ifeq ($(USE_FREETYPE),1)
+  BASE_CFLAGS += -DBUILD_FREETYPE
+endif
+
 ifndef FULLBINEXT
   FULLBINEXT=.$(ARCH)$(BINEXT)
 endif
@@ -996,6 +1017,10 @@ ifeq ($(USE_INTERNAL_JPEG),1)
   BASE_CFLAGS += -I$(JPDIR)
 else
   RENDERER_LIBS += -ljpeg
+endif
+
+ifeq ($(USE_FREETYPE),1)
+  RENDERER_LIBS += -lfreetype
 endif
 
 ifeq ("$(CC)", $(findstring "$(CC)", "clang" "clang++"))
