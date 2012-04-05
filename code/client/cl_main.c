@@ -3356,7 +3356,7 @@ void CL_InitRef( void ) {
 #else
 		Com_sprintf(dllName, sizeof(dllName), "renderer_opengl1_" ARCH_STRING DLL_EXT);
 #endif
-		rendererLib = Sys_LoadLibrary(dllName);
+		rendererLib = Sys_LoadDll(dllName, qfalse);
 	}
 
 	if(!rendererLib)
